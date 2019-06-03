@@ -26,6 +26,10 @@
 #   You might want to disable this if/when you've mirrored that yourself.
 #   Default: true
 #
+# [*nightly_repo*]
+#   Enables the nightly release if the repo `repo.aptly.info` is managed.
+#   Default: false
+#
 # [*key_server*]
 #   Key server to use when `$repo` is true.
 #   Default: keyserver.ubuntu.com
@@ -48,19 +52,28 @@ class aptly (
   Hash $config                      = {},
   Optional[String] $config_contents = undef,
   Boolean $repo                     = true,
+  Boolean $nightly_repo             = false,
   String $key_server                = 'keyserver.ubuntu.com',
   String $user                      = 'root',
   Hash $aptly_repos                 = {},
   Hash $aptly_mirrors               = {},
 ) {
   if $repo {
+
+    if $nightly_repo {
+      $release = 'nightly'
+    }
+    else {
+      $release = 'squeeze'
+    }
+
     apt::source { 'aptly':
       location => 'http://repo.aptly.info',
-      release  => 'squeeze',
+      release  => $release,
       repos    => 'main',
       key      =>  {
         server => $key_server,
-        id     => 'DF32BC15E2145B3FA151AED19E3E53F19C7DE460',
+        id     => '26DA9D8630302E0B86A7A2CBED75B5A4483DA07C',
       }
     }
 
