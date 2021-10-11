@@ -47,16 +47,16 @@
 #   Default: {}
 #
 class aptly (
-  String $package_ensure            = 'present',
-  Stdlib::Absolutepath $config_file = '/etc/aptly.conf',
-  Hash $config                      = {},
-  Optional[String] $config_contents = undef,
-  Boolean $repo                     = true,
-  Boolean $nightly_repo             = false,
-  String $key_server                = 'keyserver.ubuntu.com',
-  String $user                      = 'root',
-  Hash $aptly_repos                 = {},
-  Hash $aptly_mirrors               = {},
+  String $package_ensure                 = 'present',
+  Stdlib::Absolutepath $config_file      = '/etc/aptly.conf',
+  Hash $config                           = {},
+  Optional[String] $config_contents      = undef,
+  Boolean $repo                          = true,
+  Enum['squeeze','nightly']$repo_release = "",
+  String $key_server                     = 'keyserver.ubuntu.com',
+  String $user                           = 'root',
+  Hash $aptly_repos                      = {},
+  Hash $aptly_mirrors                    = {},
 ) {
   if $repo {
 
@@ -72,7 +72,7 @@ class aptly (
       release  => $release,
       repos    => 'main',
       key      =>  {
-        server => $key_server,
+        source => 'https://www.aptly.info/pubkey.txt',
         id     => '26DA9D8630302E0B86A7A2CBED75B5A4483DA07C',
       }
     }
