@@ -52,7 +52,7 @@ class aptly (
   Hash $config                           = {},
   Optional[String] $config_contents      = undef,
   Boolean $repo                          = true,
-  Enum['squeeze','nightly']$repo_release = "",
+  Enum['squeeze','nightly']$repo_release = 'squeeze',
   String $key_server                     = 'keyserver.ubuntu.com',
   String $user                           = 'root',
   Hash $aptly_repos                      = {},
