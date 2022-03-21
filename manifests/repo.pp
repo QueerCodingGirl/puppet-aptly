@@ -26,7 +26,6 @@ define aptly::repo(
   String $component     = '',
   String $distribution  = '',
 ){
-  include ::aptly
 
   $aptly_cmd = "${::aptly::aptly_cmd} repo"
 

@@ -15,8 +15,6 @@ define aptly::snapshot (
   $mirror = undef,
 ) {
 
-  include aptly
-
   $aptly_cmd = "${::aptly::aptly_cmd} snapshot"
 
   if $repo and $mirror {

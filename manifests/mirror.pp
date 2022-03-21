@@ -66,14 +66,13 @@ define aptly::mirror (
   Boolean $filter_with_deps  = false,
   Array $environment         = [],
 ) {
-  include ::aptly
 
   $gpg_cmd = "/usr/bin/gpg --no-default-keyring --keyring ${keyring}"
   $aptly_cmd = "${::aptly::aptly_cmd} mirror"
 
   if empty($architectures) {
     $architectures_arg = ''
-  } else{
+  } else {
     $architectures_as_s = join($architectures, ',')
     $architectures_arg = "-architectures=\"${architectures_as_s}\""
   }
@@ -93,34 +92,34 @@ define aptly::mirror (
 
   if empty($filter) {
     $filter_arg = ''
-  } else{
+  } else {
     $filter_arg = " -filter=\"${filter}\""
   }
 
   if ($filter_with_deps == true) {
     $filter_with_deps_arg = ' -filter-with-deps'
-  } else{
+  } else {
     $filter_with_deps_arg = ''
   }
 
   # $::aptly::key_server will be used as default key server
   # key in hash format
-  if is_hash($key) and $key[id] {
-    if is_array($key[id]) {
-      $key_string = join($key[id], "' '")
-    } elsif is_string($key[id]) or is_integer($key[id]) {
-      $key_string = $key[id]
+  if is_hash($key) and $key['id'] {
+    if is_array($key['id']) {
+      $key_string = join($key['id'], "' '")
+    } elsif is_string($key['id']) or is_integer($key['id']) {
+      $key_string = $key['id']
     } else {
       fail('$key[id] is neither a string nor an array!')
     }
-    if $key[server] {
-      $key_server = $key[server]
-    }else{
+    if $key['server'] {
+      $key_server = $key['server']
+    } else {
       $key_server = $::aptly::key_server
     }
 
   # key in string/array format
-  }elsif is_string($key) or is_array($key) {
+  } elsif is_string($key) or is_array($key) {
     $key_server = $::aptly::key_server
     if is_array($key) {
       $key_string = join($key, "' '")
@@ -132,15 +131,23 @@ define aptly::mirror (
   }
 
   # no GPG key
-  if $key.empty {
+  if empty($key) {
     $exec_aptly_mirror_create_require = [
       Package['aptly'],
       File['aptly_config_file'],
     ]
-  }else{
+  } else {
+    if $key['server'] {
+      $key_import_cmd = "${gpg_cmd} --keyserver '${key_server}' --recv-keys '${key_string}'"
+    } elsif $key['filepath'] {
+      $key_import_cmd = "${gpg_cmd} --import '${key['filepath']}'"
+    } else {
+      fail('Cannot find key source - filepath or server must be specified')
+    }
+
     exec { "aptly_mirror_gpg-${title}":
       path    => '/bin:/usr/bin',
-      command => "${gpg_cmd} --keyserver '${key_server}' --recv-keys '${key_string}'",
+      command => $key_import_cmd,
       unless  => "echo '${key_string}' | xargs -n1 ${gpg_cmd} --list-keys",
       user    => $::aptly::user,
     }
