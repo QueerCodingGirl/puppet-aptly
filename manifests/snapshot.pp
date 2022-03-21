@@ -14,8 +14,8 @@ define aptly::snapshot (
   $repo   = undef,
   $mirror = undef,
 ) {
-
-  $aptly_cmd = "${::aptly::aptly_cmd} snapshot"
+  include aptly
+  $aptly_cmd = "${aptly::aptly_cmd} snapshot"
 
   if $repo and $mirror {
     fail('$repo and $mirror are mutually exclusive.')
@@ -33,7 +33,7 @@ define aptly::snapshot (
   exec { "aptly_snapshot_create-${title}":
     command => "${aptly_cmd} ${aptly_args}",
     unless  => "${aptly_cmd} show ${title} >/dev/null",
-    user    => $::aptly::user,
+    user    => $aptly::user,
     require => Class['aptly'],
   }
 

@@ -53,20 +53,34 @@ class aptly (
   Optional[String] $config_contents      = undef,
   Boolean $repo                          = true,
   Enum['squeeze','nightly']$repo_release = 'squeeze',
-  String $key_server                     = 'keyserver.ubuntu.com',
+  Optional[String] $key_server           = undef,
+  String $key_id                         = '26DA9D8630302E0B86A7A2CBED75B5A4483DA07C',
   String $user                           = 'root',
   Hash $aptly_repos                      = {},
   Hash $aptly_mirrors                    = {},
 ) {
   if $repo {
 
-    apt::source { 'aptly':
-      location => 'http://repo.aptly.info',
-      release  => $repo_release,
-      repos    => 'main',
-      key      =>  {
-        source => 'https://www.aptly.info/pubkey.txt',
-        id     => '26DA9D8630302E0B86A7A2CBED75B5A4483DA07C',
+    if $key_server {
+      apt::source { 'aptly':
+        location => 'http://repo.aptly.info',
+        release  => $repo_release,
+        repos    => 'main',
+        key      =>  {
+          server => $key_server,
+          id     => $key_id,
+        }
+      }
+    }
+    else {
+      apt::source { 'aptly':
+        location => 'http://repo.aptly.info',
+        release  => $repo_release,
+        repos    => 'main',
+        key      =>  {
+          source => 'https://www.aptly.info/pubkey.txt',
+          id     => $key_id,
+        }
       }
     }
 
@@ -91,6 +105,6 @@ class aptly (
   $aptly_cmd = "/usr/bin/aptly -config ${config_file}"
 
   # Hiera support
-  create_resources('::aptly::repo', $aptly_repos)
-  create_resources('::aptly::mirror', $aptly_mirrors)
+  create_resources('aptly::repo', $aptly_repos)
+  create_resources('aptly::mirror', $aptly_mirrors)
 }

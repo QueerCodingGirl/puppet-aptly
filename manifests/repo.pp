@@ -26,8 +26,8 @@ define aptly::repo(
   String $component     = '',
   String $distribution  = '',
 ){
-
-  $aptly_cmd = "${::aptly::aptly_cmd} repo"
+  include aptly
+  $aptly_cmd = "${aptly::aptly_cmd} repo"
 
   if empty($architectures) {
     $architectures_arg = ''
@@ -57,7 +57,7 @@ define aptly::repo(
   exec{ "aptly_repo_create-${title}":
     command => "${aptly_cmd} create ${architectures_arg} ${comment_arg} ${component_arg} ${distribution_arg} ${title}",
     unless  => "${aptly_cmd} show ${title} >/dev/null",
-    user    => $::aptly::user,
+    user    => $aptly::user,
     require => [
       Package['aptly'],
       File['aptly_config_file'],

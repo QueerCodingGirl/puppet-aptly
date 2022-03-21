@@ -66,9 +66,9 @@ define aptly::mirror (
   Boolean $filter_with_deps  = false,
   Array $environment         = [],
 ) {
-
+  include aptly
   $gpg_cmd = "/usr/bin/gpg --no-default-keyring --keyring ${keyring}"
-  $aptly_cmd = "${::aptly::aptly_cmd} mirror"
+  $aptly_cmd = "${aptly::aptly_cmd} mirror"
 
   if empty($architectures) {
     $architectures_arg = ''
@@ -102,7 +102,7 @@ define aptly::mirror (
     $filter_with_deps_arg = ''
   }
 
-  # $::aptly::key_server will be used as default key server
+  # $aptly::key_server will be used as default key server
   # key in hash format
   if is_hash($key) and $key['id'] {
     if is_array($key['id']) {
@@ -115,12 +115,12 @@ define aptly::mirror (
     if $key['server'] {
       $key_server = $key['server']
     } else {
-      $key_server = $::aptly::key_server
+      $key_server = $aptly::key_server
     }
 
   # key in string/array format
   } elsif is_string($key) or is_array($key) {
-    $key_server = $::aptly::key_server
+    $key_server = $aptly::key_server
     if is_array($key) {
       $key_string = join($key, "' '")
     } elsif is_string($key) or is_integer($key) {
@@ -149,7 +149,7 @@ define aptly::mirror (
       path    => '/bin:/usr/bin',
       command => $key_import_cmd,
       unless  => "echo '${key_string}' | xargs -n1 ${gpg_cmd} --list-keys",
-      user    => $::aptly::user,
+      user    => $aptly::user,
     }
 
     $exec_aptly_mirror_create_require = [
@@ -162,7 +162,7 @@ define aptly::mirror (
   exec { "aptly_mirror_create-${title}":
     command     => "${aptly_cmd} create ${architectures_arg} ${keyring_arg} -with-sources=${with_sources} -with-udebs=${with_udebs}${filter_arg}${filter_with_deps_arg} ${title} ${location} ${release}${components_arg}",
     unless      => "${aptly_cmd} show ${title} >/dev/null",
-    user        => $::aptly::user,
+    user        => $aptly::user,
     require     => $exec_aptly_mirror_create_require,
     environment => $environment,
   }
