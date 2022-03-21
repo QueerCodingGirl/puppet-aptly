@@ -60,16 +60,9 @@ class aptly (
 ) {
   if $repo {
 
-    if $nightly_repo {
-      $release = 'nightly'
-    }
-    else {
-      $release = 'squeeze'
-    }
-
     apt::source { 'aptly':
       location => 'http://repo.aptly.info',
-      release  => $release,
+      release  => $repo_release,
       repos    => 'main',
       key      =>  {
         source => 'https://www.aptly.info/pubkey.txt',
