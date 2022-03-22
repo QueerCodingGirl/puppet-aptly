@@ -54,7 +54,7 @@ class aptly (
   Boolean $repo                          = true,
   Enum['squeeze','nightly']$repo_release = 'squeeze',
   Optional[String] $key_server           = undef,
-  String $key_id                         = '26DA9D8630302E0B86A7A2CBED75B5A4483DA07C',
+  String $key_id                         = '78D6517AB92E22947F577996A0546A43624A8331',
   String $user                           = 'root',
   Hash $aptly_repos                      = {},
   Hash $aptly_mirrors                    = {},
